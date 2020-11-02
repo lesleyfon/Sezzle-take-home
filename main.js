@@ -31,7 +31,7 @@ class Calculator {
 
 	// assigns the sign to the sign prop, clears the bottom field
 	setOperand(sign) {
-		this.firstInt = this.bottomDisplay.innerText;
+		this.firstInt = this.bottomDisplay.innerText; // set what ever number we have on the bottom display to the first firstInt prop
 		this.operationSign = sign === "÷" ? "/" : sign;
 
 		this.clearBottom();
