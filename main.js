@@ -29,12 +29,18 @@ class Calculator {
 	}
 	setOperand(sign) {
 		this.firstInt = this.bottomDisplay.innerText;
-		this.operationSign = sign;
+		this.operationSign = sign === "÷" ? "/" : sign;
 		this.clearBottom();
 
 		if (!!this.firstInt || this.firstInt === 0) {
-			this.topDisplay.innerText = `${this.firstInt} ${sign}`;
+			this.topDisplay.innerText += `${this.firstInt} ${sign}`;
 		}
+	}
+	compute() {
+		this.secondInt = this.bottomDisplay.innerText;
+		this.total = eval(`${this.firstInt} ${this.operationSign} ${this.secondInt}`);
+		this.clearAll();
+		this.bottomDisplay.innerText = this.total;
 	}
 }
 
@@ -57,4 +63,9 @@ operands.forEach((operand) => {
 	operand.addEventListener("click", (event) => {
 		calculator.setOperand(event.target.innerText);
 	});
+});
+
+// Compute calculation
+equal.addEventListener("click", () => {
+	calculator.compute();
 });
