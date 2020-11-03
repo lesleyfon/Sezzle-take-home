@@ -6,9 +6,11 @@
 		<!-- <link rel="stylesheet" href="./normalize.css" />
 		<link rel="stylesheet" href="./style.css" /> -->
 		<style>
+			main {
+				display: flex;
+			}
 			.calculator {
 				width: 655px;
-				margin: 0 auto;
 				border: 1px solid black;
 				display: grid;
 				grid-template-columns: 1fr 1fr 1fr 1fr;
@@ -55,41 +57,65 @@
 				background-color: #333333;
 				color: #f8f8f8;
 				font-size: x-large;
+				outline: none;
 			}
+			section button:hover {
+				background-color: #dd8c01;
+				transition-duration: 0.8s;
+			}
+
 			#zero {
 				grid-column: span 2;
+			}
+
+			#results {
+				background-color: #1b1b1b;
+				font-size: 1.2rem;
+				font-weight: lighter;
+				width: 220px;
+				height: 622px;
+			}
+
+			.result-card {
+				width: 200px;
+				padding: 10px;
+				color: #f8f8f8;
+				background-color: #333333;
+				word-wrap: break-word;
 			}
 		</style>
 		<title>Sezzle Take Home Exercise</title>
 	</head>
 	<body>
-		<section class="calculator">
-			<section class="display">
-				<div id="top-display"></div>
-				<div id="bottom-display"></div>
-			</section>
+		<main>
+			<section class="calculator">
+				<section class="display">
+					<div id="top-display"></div>
+					<div id="bottom-display"></div>
+				</section>
 
-			<button data-clear="clear">AC</button>
-			<button data-int-sign="int-sign">+/-</button>
-			<button data-percent="percent">%</button>
-			<button data-operand="operand">÷</button>
-			<button data-integer="integer">7</button>
-			<button data-integer="integer">8</button>
-			<button data-integer="integer">9</button>
-			<button data-operand="operand">*</button>
-			<button data-integer="integer">4</button>
-			<button data-integer="integer">5</button>
-			<button data-integer="integer">6</button>
-			<button data-operand="operand">-</button>
-			<button data-integer="integer">1</button>
-			<button data-integer="integer">2</button>
-			<button data-integer="integer">3</button>
-			<button data-operand="operand">+</button>
-			<button data-integer="integer" id="zero">0</button>
-			<button data-integer="integer">.</button>
-			<button data-equals="equal">=</button>
-		</section>
-		<section id="results"></section>
+				<button data-clear="clear">AC</button>
+				<button data-int-sign="int-sign">+/-</button>
+				<button data-percent="percent">%</button>
+				<button data-operand="operand">÷</button>
+				<button data-integer="integer">7</button>
+				<button data-integer="integer">8</button>
+				<button data-integer="integer">9</button>
+				<button data-operand="operand">*</button>
+				<button data-integer="integer">4</button>
+				<button data-integer="integer">5</button>
+				<button data-integer="integer">6</button>
+				<button data-operand="operand">-</button>
+				<button data-integer="integer">1</button>
+				<button data-integer="integer">2</button>
+				<button data-integer="integer">3</button>
+				<button data-operand="operand">+</button>
+				<button data-integer="integer" id="zero">0</button>
+				<button data-integer="integer">.</button>
+				<button data-equals="equal">=</button>
+			</section>
+			<section id="results"></section>
+		</main>
 		<script src="/socket.io/socket.io.js"></script>
 		<script>
 			let socket = io();
@@ -110,6 +136,7 @@
 					socket.on("calculate", function (msg) {
 						if (typeof msg === "string") {
 							const result = document.createElement("div");
+							result.className = "result-card";
 							result.innerText = msg;
 							document.getElementById("results").prepend(result);
 						}
@@ -151,7 +178,9 @@
 					this.firstInt = Number(
 						(!!this.firstInt || this.firstInt === 0) && this.firstInt
 					);
+
 					this.total = eval(`${this.firstInt} ${this.operationSign} ${this.secondInt}`);
+					this.total = Number(this.total.toFixed(6));
 					const displayText = `${this.firstInt} ${this.operationSign} ${this.secondInt} = ${this.total}`;
 					this.clearAll();
 
@@ -161,6 +190,7 @@
 					} else {
 						this.bottomDisplay.innerText = this.total;
 					}
+
 					socket.emit("calculate", displayText);
 					this.total = null;
 					this.firstInt = null;
