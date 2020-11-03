@@ -124,7 +124,7 @@
 			const clearAll = document.querySelector("[data-clear]");
 			const equal = document.querySelector("[data-equals]");
 			const integerSign = document.querySelectorAll("[data-int-sign]");
-
+			const percent = document.querySelector("[data-percent]");
 			class Calculator {
 				constructor() {
 					this.firstInt = null;
@@ -159,6 +159,7 @@
 						this.total = null;
 						this.bottomDisplay.innerText = String(number);
 					} else {
+						if (this.bottomDisplay.innerText.includes(".") && number === ".") return;
 						this.bottomDisplay.innerText += String(number);
 					}
 				}
@@ -200,6 +201,8 @@
 					this.firstInt = null;
 					this.secondInt = null;
 				}
+
+				computePercent() {}
 			}
 
 			const calculator = new Calculator();
