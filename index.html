@@ -155,7 +155,12 @@
 				}
 				// Updates the bottom field
 				updateButtonDisplay(number) {
-					this.bottomDisplay.innerText += String(number);
+					if (this.total) {
+						this.total = null;
+						this.bottomDisplay.innerText = String(number);
+					} else {
+						this.bottomDisplay.innerText += String(number);
+					}
 				}
 
 				// assigns the sign to the sign prop, clears the bottom field
@@ -192,7 +197,6 @@
 					}
 
 					socket.emit("calculate", displayText);
-					this.total = null;
 					this.firstInt = null;
 					this.secondInt = null;
 				}
