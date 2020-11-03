@@ -89,7 +89,7 @@
 			<button data-integer="integer">.</button>
 			<button data-equals="equal">=</button>
 		</section>
-
+		<section id="results"></section>
 		<script src="/socket.io/socket.io.js"></script>
 		<script>
 			let socket = io();
@@ -107,6 +107,13 @@
 					this.topDisplay = document.getElementById("top-display");
 					this.bottomDisplay = document.getElementById("bottom-display");
 					this.operationSign = "";
+					socket.on("calculate", function (msg) {
+						if (typeof msg === "string") {
+							const result = document.createElement("div");
+							result.innerText = msg;
+							document.getElementById("results").prepend(result);
+						}
+					});
 				}
 
 				clearTop() {

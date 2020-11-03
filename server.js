@@ -9,6 +9,7 @@ app.get("/", (req, res) => {
 io.on("connection", (socket) => {
 	socket.on("calculate", (msg) => {
 		console.log("message: " + msg);
+		io.emit("calculate", msg);
 	});
 });
 http.listen(3000, () => {
