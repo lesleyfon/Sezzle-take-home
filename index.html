@@ -3,9 +3,63 @@
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<link rel="stylesheet" href="./normalize.css" />
-		<link rel="stylesheet" href="./style.css" />
+		<!-- <link rel="stylesheet" href="./normalize.css" />
+		<link rel="stylesheet" href="./style.css" /> -->
+		<style>
+			.calculator {
+				width: 655px;
+				margin: 0 auto;
+				border: 1px solid black;
+				display: grid;
+				grid-template-columns: 1fr 1fr 1fr 1fr;
+				grid-template-rows: repeat(6, 100px);
+				grid-gap: 4px;
+				background-color: #1b1b1b;
+			}
 
+			.display {
+				grid-column: 1 / -1;
+				height: 200px;
+				width: 100%;
+				margin: 0px;
+				display: flex;
+				justify-content: flex-end;
+				flex-direction: column;
+				height: 100%;
+			}
+			.display > div {
+				width: 100%;
+				text-align: right;
+			}
+
+			.display #top-display {
+				height: 40%;
+				height: 40%;
+				background-color: #000000;
+				color: #f8f8f8;
+				font-size: 2rem;
+			}
+			.display #bottom-display {
+				color: #f8f8f8;
+				background-color: #1b1b1b;
+				height: 60%;
+
+				font-size: 2.5rem;
+				line-height: 50px;
+				font-weight: 600;
+			}
+
+			section button {
+				/* border-radius: 10px; */
+				border: none;
+				background-color: #333333;
+				color: #f8f8f8;
+				font-size: x-large;
+			}
+			#zero {
+				grid-column: span 2;
+			}
+		</style>
 		<title>Sezzle Take Home Exercise</title>
 	</head>
 	<body>
@@ -36,6 +90,102 @@
 			<button data-equals="equal">=</button>
 		</section>
 
-		<script src="./main.js"></script>
+		<script src="/socket.io/socket.io.js"></script>
+		<script>
+			let socket = io();
+			const allNumbers = document.querySelectorAll("[data-integer]");
+			const operands = document.querySelectorAll("[data-operand]");
+			const clearAll = document.querySelector("[data-clear]");
+			const equal = document.querySelector("[data-equals]");
+			const integerSign = document.querySelectorAll("[data-int-sign]");
+
+			class Calculator {
+				constructor() {
+					this.firstInt = null;
+					this.secondInt = null;
+					this.total = null;
+					this.topDisplay = document.getElementById("top-display");
+					this.bottomDisplay = document.getElementById("bottom-display");
+					this.operationSign = "";
+				}
+
+				clearTop() {
+					this.topDisplay.innerText = "";
+				}
+				clearBottom() {
+					this.bottomDisplay.innerText = "";
+				}
+				clearAll() {
+					this.clearTop();
+					this.clearBottom();
+				}
+				// Updates the bottom field
+				updateButtonDisplay(number) {
+					this.bottomDisplay.innerText += String(number);
+				}
+
+				// assigns the sign to the sign prop, clears the bottom field
+				setOperand(sign) {
+					this.firstInt = this.bottomDisplay.innerText; // set what ever number we have on the bottom display to the first firstInt prop
+					this.operationSign = sign === "÷" ? "/" : sign;
+
+					this.clearBottom();
+
+					if (!!this.firstInt || this.firstInt === 0) {
+						this.topDisplay.innerText += `${this.firstInt} ${sign}`;
+					}
+				}
+				compute() {
+					this.secondInt = this.bottomDisplay.innerText;
+					// check to make sure that the firstint and secondInt are stings else assign 0 to them. Also we want to remove leading zeros before performing any math on them
+					this.secondInt = Number(
+						(!!this.secondInt || this.secondInt === 0) && this.secondInt
+					);
+					this.firstInt = Number(
+						(!!this.firstInt || this.firstInt === 0) && this.firstInt
+					);
+					this.total = eval(`${this.firstInt} ${this.operationSign} ${this.secondInt}`);
+					const displayText = `${this.firstInt} ${this.operationSign} ${this.secondInt} = ${this.total}`;
+					this.clearAll();
+
+					// Checking if the we happen to divide a number by Zero. Display error
+					if (this.total === Infinity) {
+						this.bottomDisplay.innerText = "Error";
+					} else {
+						this.bottomDisplay.innerText = this.total;
+					}
+					socket.emit("calculate", displayText);
+					this.total = null;
+					this.firstInt = null;
+					this.secondInt = null;
+				}
+			}
+
+			const calculator = new Calculator();
+
+			// Clear all field
+			clearAll.addEventListener("click", () => {
+				calculator.clearAll();
+			});
+
+			// Click event for numbers
+			allNumbers.forEach((number) => {
+				number.addEventListener("click", (event) => {
+					calculator.updateButtonDisplay(event.target.innerText);
+				});
+			});
+
+			// Click events for operands
+			operands.forEach((operand) => {
+				operand.addEventListener("click", (event) => {
+					calculator.setOperand(event.target.innerText);
+				});
+			});
+
+			// Compute calculation
+			equal.addEventListener("click", () => {
+				calculator.compute();
+			});
+		</script>
 	</body>
 </html>
