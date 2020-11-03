@@ -125,6 +125,9 @@
 			const equal = document.querySelector("[data-equals]");
 			const integerSign = document.querySelectorAll("[data-int-sign]");
 			const percent = document.querySelector("[data-percent]");
+			const intSign = document.querySelector("[data-int-sign]");
+
+			// Calculator class
 			class Calculator {
 				constructor() {
 					this.firstInt = null;
@@ -133,11 +136,18 @@
 					this.topDisplay = document.getElementById("top-display");
 					this.bottomDisplay = document.getElementById("bottom-display");
 					this.operationSign = "";
-					socket.on("calculate", function (msg) {
-						if (typeof msg === "string") {
+					this.lastTen = [];
+					socket.on("calculate", function ({ displayText }) {
+						console.log(displayText);
+						if (typeof displayText === "string") {
 							const result = document.createElement("div");
 							result.className = "result-card";
-							result.innerText = msg;
+							result.innerText = displayText;
+							if (document.getElementById("results").childElementCount === 9) {
+								let lastChild = document.getElementById("results").lastChild;
+								document.getElementById("results").removeChild(lastChild);
+							}
+
 							document.getElementById("results").prepend(result);
 						}
 					});
@@ -146,12 +156,31 @@
 				clearTop() {
 					this.topDisplay.innerText = "";
 				}
+
 				clearBottom() {
 					this.bottomDisplay.innerText = "";
 				}
+
 				clearAll() {
 					this.clearTop();
 					this.clearBottom();
+				}
+
+				posNeg() {
+					if (this.bottomDisplay.innerText) {
+						if (this.bottomDisplay.innerText[0] === "-") {
+							this.bottomDisplay.innerText = this.bottomDisplay.innerText.slice(1);
+						} else {
+							this.bottomDisplay.innerText = "- " + this.bottomDisplay.innerText;
+						}
+					}
+
+					if (this.topDisplay === false) {
+						this.firstInt = this.bottomDisplay.innerText;
+					} else {
+						this.secondInt = this.bottomDisplay.innerText;
+					}
+					console.log("hello");
 				}
 				// Updates the bottom field
 				updateButtonDisplay(number) {
@@ -184,10 +213,11 @@
 					this.firstInt = Number(
 						(!!this.firstInt || this.firstInt === 0) && this.firstInt
 					);
-
+					console.log(`${this.firstInt} ${this.operationSign} ${this.secondInt}`);
 					this.total = eval(`${this.firstInt} ${this.operationSign} ${this.secondInt}`);
 					this.total = Number(this.total.toFixed(6));
 					const displayText = `${this.firstInt} ${this.operationSign} ${this.secondInt} = ${this.total}`;
+					this.lastTen.unshift(displayText);
 					this.clearAll();
 
 					// Checking if the we happen to divide a number by Zero. Display error
@@ -197,7 +227,7 @@
 						this.bottomDisplay.innerText = this.total;
 					}
 
-					socket.emit("calculate", displayText);
+					socket.emit("calculate", { displayText, lastTen: this.lastTen });
 					this.firstInt = null;
 					this.secondInt = null;
 				}
@@ -229,6 +259,11 @@
 			// Compute calculation
 			equal.addEventListener("click", () => {
 				calculator.compute();
+			});
+
+			// Assign positive and negative to display
+			intSign.addEventListener("click", () => {
+				calculator.posNeg();
 			});
 		</script>
 	</body>
