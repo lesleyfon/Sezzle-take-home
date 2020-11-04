@@ -120,7 +120,10 @@
 		</main>
 		<script src="/socket.io/socket.io.js"></script>
 		<script>
+			// Load the socket Client
 			let socket = io();
+
+			// Query Selectors for elements on the html file
 			const allNumbers = document.querySelectorAll("[data-integer]");
 			const operands = document.querySelectorAll("[data-operand]");
 			const clearAll = document.querySelector("[data-clear]");
@@ -138,13 +141,18 @@
 					this.topDisplay = document.getElementById("top-display");
 					this.bottomDisplay = document.getElementById("bottom-display");
 					this.operationSign = "";
+
+					// Open a socket connection when ever this class in initialize.
 					socket.on("calculate", function ({ displayText }) {
+						// This handles the case where a another clients emits an  event, we want to make sure it is a valid string to display
 						if (typeof displayText === "string") {
 							const result = document.createElement("div");
 							result.className = "result-card";
 							result.innerText = displayText;
+
+							// Checks to make sure we have not more than 10 calculations displaying, if so, then we want to remove the last child
 							if (document.getElementById("results").childElementCount === 9) {
-								let lastChild = document.getElementById("results").lastChild;
+								const lastChild = document.getElementById("results").lastChild;
 								document.getElementById("results").removeChild(lastChild);
 							}
 
@@ -153,19 +161,23 @@
 					});
 				}
 
+				// Clears top display field
 				clearTop() {
 					this.topDisplay.innerText = "";
 				}
 
+				// Clears bottom display field
 				clearBottom() {
 					this.bottomDisplay.innerText = "";
 				}
 
+				// Clears top and bottom display field
 				clearAll() {
 					this.clearTop();
 					this.clearBottom();
 				}
-				// Assign and remove negative signs
+
+				// Assign and remove negative signs from numbers being typed in
 				posNeg() {
 					if (this.bottomDisplay.innerText) {
 						if (this.bottomDisplay.innerText[0] === "-") {
@@ -175,18 +187,20 @@
 						}
 					}
 				}
-				// Updates the bottom field
+
+				// Updates the bottom display field when someone clicks a number
 				updateButtonDisplay(number) {
 					if (this.total) {
 						this.total = null;
 						this.bottomDisplay.innerText = String(number);
 					} else {
+						// Make sure user is not able to click in multiple period(.) signs
 						if (this.bottomDisplay.innerText.includes(".") && number === ".") return;
 						this.bottomDisplay.innerText += String(number);
 					}
 				}
 
-				// assigns the sign to the sign prop, clears the bottom field
+				// Assigns the operand sign to the sign prop, clears the bottom  display field
 				setOperand(sign) {
 					this.firstInt = this.bottomDisplay.innerText; // set what ever number we have on the bottom display to the first firstInt prop
 
@@ -206,8 +220,7 @@
 
 					if (!this.firstInt && !this.secondInt) return; // Do nothing if we don't have any numbers assign to the first or second number
 
-					// check to make sure that the firstint and secondInt are stings else assign 0 to them. Also we want to remove leading zeros before performing any math on them
-
+					// Coerces the first and the second Int into numbers, If we first int or second int is a falsy value, we get 0. The removeSpaceFromInt method removes spaces between a number and a negative sign
 					this.firstInt = Number(
 						(!!this.firstInt || this.firstInt === 0) &&
 							this.removeSpaceFromInt(this.firstInt)
@@ -219,13 +232,15 @@
 
 					this.total = eval(`${this.firstInt} ${this.operationSign} ${this.secondInt}`);
 					this.total = Number(this.total.toFixed(6));
-					const displayText = `${this.firstInt} ${this.operationSign} ${this.secondInt} = ${this.total}`;
+					let displayText = `${this.firstInt} ${this.operationSign} ${this.secondInt} = ${this.total}`;
 
 					this.clearAll();
 
 					// Checking if the we happen to divide a number by Zero. Display error
 					if (this.total === Infinity) {
 						this.bottomDisplay.innerText = "Error";
+						displayText = "Error";
+						this.clearAll();
 					} else {
 						this.bottomDisplay.innerText = this.total;
 					}
@@ -242,8 +257,10 @@
 				computePercent() {}
 			}
 
+			// Initialize calculator
 			const calculator = new Calculator();
 
+			// Click events
 			// Clear all field
 			clearAll.addEventListener("click", () => {
 				calculator.clearAll();

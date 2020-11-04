@@ -1,6 +1,8 @@
+main {
+	display: flex;
+}
 .calculator {
 	width: 655px;
-	margin: 0 auto;
 	border: 1px solid black;
 	display: grid;
 	grid-template-columns: 1fr 1fr 1fr 1fr;
@@ -47,7 +49,31 @@ section button {
 	background-color: #333333;
 	color: #f8f8f8;
 	font-size: x-large;
+	outline: none;
 }
+section button:hover {
+	background-color: #dd8c01;
+	transition-duration: 0.8s;
+}
+
 #zero {
 	grid-column: span 2;
+}
+
+#results {
+	background-color: #1b1b1b;
+	font-size: 1.2rem;
+	font-weight: lighter;
+	width: 220px;
+	height: 622px;
+}
+
+.result-card {
+	width: 200px;
+	padding: 10px;
+	color: #f8f8f8;
+	background-color: #333333;
+	word-wrap: break-word;
+
+	margin-bottom: 15px;
 }
