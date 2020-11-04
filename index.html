@@ -217,9 +217,6 @@
 							this.removeSpaceFromInt(this.secondInt)
 					);
 
-					console.log(
-						`${this.firstInt} ${this.operationSign} ${this.secondInt} = ${this.total}`
-					);
 					this.total = eval(`${this.firstInt} ${this.operationSign} ${this.secondInt}`);
 					this.total = Number(this.total.toFixed(6));
 					const displayText = `${this.firstInt} ${this.operationSign} ${this.secondInt} = ${this.total}`;
