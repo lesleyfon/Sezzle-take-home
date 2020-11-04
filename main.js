@@ -1,5 +1,3 @@
-const io = require("socket.io");
-console.log(io);
 const allNumbers = document.querySelectorAll("[data-integer]");
 const operands = document.querySelectorAll("[data-operand]");
 const clearAll = document.querySelector("[data-clear]");
