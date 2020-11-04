@@ -82,6 +82,8 @@
 				color: #f8f8f8;
 				background-color: #333333;
 				word-wrap: break-word;
+
+				margin-bottom: 15px;
 			}
 		</style>
 		<title>Sezzle Take Home Exercise</title>
@@ -136,9 +138,7 @@
 					this.topDisplay = document.getElementById("top-display");
 					this.bottomDisplay = document.getElementById("bottom-display");
 					this.operationSign = "";
-					this.lastTen = [];
 					socket.on("calculate", function ({ displayText }) {
-						console.log(displayText);
 						if (typeof displayText === "string") {
 							const result = document.createElement("div");
 							result.className = "result-card";
@@ -165,7 +165,7 @@
 					this.clearTop();
 					this.clearBottom();
 				}
-
+				// Assign and remove negative signs
 				posNeg() {
 					if (this.bottomDisplay.innerText) {
 						if (this.bottomDisplay.innerText[0] === "-") {
@@ -174,13 +174,6 @@
 							this.bottomDisplay.innerText = "- " + this.bottomDisplay.innerText;
 						}
 					}
-
-					if (this.topDisplay === false) {
-						this.firstInt = this.bottomDisplay.innerText;
-					} else {
-						this.secondInt = this.bottomDisplay.innerText;
-					}
-					console.log("hello");
 				}
 				// Updates the bottom field
 				updateButtonDisplay(number) {
@@ -196,28 +189,41 @@
 				// assigns the sign to the sign prop, clears the bottom field
 				setOperand(sign) {
 					this.firstInt = this.bottomDisplay.innerText; // set what ever number we have on the bottom display to the first firstInt prop
+
 					this.operationSign = sign === "÷" ? "/" : sign;
 
 					this.clearBottom();
 
+					// Only display sign after the number if there is a number
 					if (!!this.firstInt || this.firstInt === 0) {
 						this.topDisplay.innerText += `${this.firstInt} ${sign}`;
 					}
 				}
+
+				// Makes Calculation
 				compute() {
 					this.secondInt = this.bottomDisplay.innerText;
+
+					if (!this.firstInt && !this.secondInt) return; // Do nothing if we don't have any numbers assign to the first or second number
+
 					// check to make sure that the firstint and secondInt are stings else assign 0 to them. Also we want to remove leading zeros before performing any math on them
-					this.secondInt = Number(
-						(!!this.secondInt || this.secondInt === 0) && this.secondInt
-					);
+
 					this.firstInt = Number(
-						(!!this.firstInt || this.firstInt === 0) && this.firstInt
+						(!!this.firstInt || this.firstInt === 0) &&
+							this.removeSpaceFromInt(this.firstInt)
 					);
-					console.log(`${this.firstInt} ${this.operationSign} ${this.secondInt}`);
+					this.secondInt = Number(
+						(!!this.secondInt || this.secondInt === 0) &&
+							this.removeSpaceFromInt(this.secondInt)
+					);
+
+					console.log(
+						`${this.firstInt} ${this.operationSign} ${this.secondInt} = ${this.total}`
+					);
 					this.total = eval(`${this.firstInt} ${this.operationSign} ${this.secondInt}`);
 					this.total = Number(this.total.toFixed(6));
 					const displayText = `${this.firstInt} ${this.operationSign} ${this.secondInt} = ${this.total}`;
-					this.lastTen.unshift(displayText);
+
 					this.clearAll();
 
 					// Checking if the we happen to divide a number by Zero. Display error
@@ -232,6 +238,10 @@
 					this.secondInt = null;
 				}
 
+				// Removes spaces from between negative signs and string Number class is able to parse the the string
+				removeSpaceFromInt(number) {
+					return number.split(" ").join("");
+				}
 				computePercent() {}
 			}
 
